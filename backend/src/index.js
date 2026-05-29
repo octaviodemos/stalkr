@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import express from 'express';
 import cors from 'cors';
 import { config } from './config.js';
@@ -36,7 +38,7 @@ function isEnvDefined(name) {
   return Boolean(value && !value.startsWith('TODO'));
 }
 
-console.log('[Supabase URL]', config.supabaseUrl);
+console.log('[Supabase URL]', process.env.SUPABASE_URL || '(not set)');
 console.log('[Supabase env]', {
   SUPABASE_URL: isEnvDefined('SUPABASE_URL'),
   SUPABASE_ANON_KEY: isEnvDefined('SUPABASE_ANON_KEY'),
