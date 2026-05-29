@@ -31,6 +31,18 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+function isEnvDefined(name) {
+  const value = process.env[name];
+  return Boolean(value && !value.startsWith('TODO'));
+}
+
+console.log('[Supabase URL]', config.supabaseUrl);
+console.log('[Supabase env]', {
+  SUPABASE_URL: isEnvDefined('SUPABASE_URL'),
+  SUPABASE_ANON_KEY: isEnvDefined('SUPABASE_ANON_KEY'),
+  SUPABASE_SERVICE_ROLE_KEY: isEnvDefined('SUPABASE_SERVICE_ROLE_KEY'),
+});
+
 app.listen(config.port, () => {
   console.log(`Stalkr API running on http://localhost:${config.port}`);
 });

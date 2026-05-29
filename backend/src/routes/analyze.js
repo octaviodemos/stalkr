@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { requireAuth, loadUser } from '../middleware/auth.js';
+import { requireAuth } from '../middleware/auth.js';
 import { getSupabase } from '../services/supabase.js';
 import { fetchInstagramFollowing } from '../services/apify.js';
 import { classifyFollowingList, groupByGender } from '../services/genderize.js';
 
 const router = Router();
 
-router.post('/', requireAuth, loadUser, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { username } = req.body;
 
@@ -19,12 +19,6 @@ router.post('/', requireAuth, loadUser, async (req, res) => {
     const following = await fetchInstagramFollowing(targetUsername);
     const classified = await classifyFollowingList(following);
     const result = groupByGender(classified);
-
-    await getSupabase().from('analyses').insert({
-      user_id: req.userId,
-      target_username: targetUsername,
-      result_json: result,
-    });
 
     return res.json(result);
   } catch (err) {

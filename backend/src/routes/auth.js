@@ -18,11 +18,25 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const { data: existing } = await getSupabase()
-      .from('users')
-      .select('id')
-      .eq('email', email.toLowerCase())
-      .maybeSingle();
+    let existing;
+
+    try {
+      const { data, error } = await getSupabase()
+        .from('users')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .maybeSingle();
+
+      if (error) {
+        console.error('[Supabase error]', error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      existing = data;
+    } catch (error) {
+      console.error('[Supabase error]', error);
+      return res.status(500).json({ error: error.message });
+    }
 
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
@@ -30,17 +44,27 @@ router.post('/register', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const { data: user, error } = await getSupabase()
-      .from('users')
-      .insert({
-        email: email.toLowerCase(),
-        password_hash: passwordHash,
-        credits: 1,
-      })
-      .select('id, email, credits')
-      .single();
+    let user;
 
-    if (error) {
+    try {
+      const { data, error } = await getSupabase()
+        .from('users')
+        .insert({
+          email: email.toLowerCase(),
+          password_hash: passwordHash,
+          credits: 1,
+        })
+        .select('id, email, credits')
+        .single();
+
+      if (error) {
+        console.error('[Supabase error]', error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      user = data;
+    } catch (error) {
+      console.error('[Supabase error]', error);
       return res.status(500).json({ error: error.message });
     }
 
